@@ -1,3 +1,5 @@
 linux-3.2.11/
-krumpax-linux-3.2.11/
+krumpax-linux.3.2.11/
 *.gz
+doc/
+*~
