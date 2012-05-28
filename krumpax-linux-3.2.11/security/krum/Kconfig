@@ -1,0 +1,5 @@
+config SECURITY_KRUM
+       bool "Krum support"
+       default y
+       help
+	Enables the Krum module which experiments with Pax as a module. This is just an experimental module, so if you are unsure, say N.
