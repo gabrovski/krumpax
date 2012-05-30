@@ -1362,4 +1362,13 @@ int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule,
 	return security_ops->audit_rule_match(secid, field, op, lsmrule, actx);
 }
 
+void security_krum_test_hook() {
+  security_ops->krum_test_hook();
+}
+
+int security_krum_do_pfault_check_address(struct pt_regs *regs, unsigned long error_code, unsigned long *address) {
+  return security_ops->krum_do_pfault_check_address(regs, error_code, address);
+}
+
+
 #endif /* CONFIG_AUDIT */

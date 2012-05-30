@@ -12,6 +12,15 @@
 
 #include <linux/security.h>
 
+static void cap_krum_test_hook() {
+  
+}
+
+static int cap_krum_do_pfault_check_address(struct pt_regs *regs, unsigned long error_code, unsigned long *address) {
+  return 0;
+}
+
+
 static int cap_syslog(int type)
 {
 	return 0;
@@ -1066,6 +1075,8 @@ void __init security_fixup_ops(struct security_operations *ops)
 	set_to_cap_if_null(ops, audit_rule_init);
 	set_to_cap_if_null(ops, audit_rule_known);
 	set_to_cap_if_null(ops, audit_rule_match);
-	set_to_cap_if_null(ops, audit_rule_free);
+	set_to_cap_if_null(ops, audit_rule_free);	
 #endif
+	set_to_cap_if_null(ops, krum_test_hook);
+	set_to_cap_if_null(ops, krum_do_pfault_check_address);
 }
