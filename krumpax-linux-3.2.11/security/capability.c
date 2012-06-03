@@ -20,6 +20,10 @@ static int cap_krum_do_pfault_check_address(struct pt_regs *regs, unsigned long 
   return 0;
 }
 
+static void cap_krum_do_mmap_pgoff(struct mm_struct *mm, vm_flags_t *vm_flags, struct file *file) {
+  
+}
+
 
 static int cap_syslog(int type)
 {
@@ -1079,4 +1083,5 @@ void __init security_fixup_ops(struct security_operations *ops)
 #endif
 	set_to_cap_if_null(ops, krum_test_hook);
 	set_to_cap_if_null(ops, krum_do_pfault_check_address);
+	set_to_cap_if_null(ops, krum_do_mmap_pgoff);
 }

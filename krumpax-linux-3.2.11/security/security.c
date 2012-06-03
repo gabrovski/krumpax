@@ -1374,5 +1374,10 @@ int security_krum_do_pfault_check_address(struct pt_regs *regs, unsigned long er
   return 0;
 }
 
+void security_krum_do_mmap_pgoff(struct mm_struct *mm, vm_flags_t *vm_flags, struct file *file) {
+ if (security_ops)
+   security_ops->krum_do_mmap_pgoff(mm, vm_flags,file);
+}
+
 
 #endif /* CONFIG_AUDIT */

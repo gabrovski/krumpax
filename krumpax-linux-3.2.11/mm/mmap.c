@@ -1068,6 +1068,10 @@ unsigned long do_mmap_pgoff(struct file *file, unsigned long addr,
 	vm_flags = calc_vm_prot_bits(prot) | calc_vm_flag_bits(flags) |
 			mm->def_flags | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
 
+	
+	//krum
+	security_krum_do_mmap_pgoff(mm, &vm_flags, file);
+
 #ifdef CONFIG_PAX_MPROTECT
 	if (mm->pax_flags & MF_PAX_MPROTECT) {
 		if ((vm_flags & (VM_WRITE | VM_EXEC)) == (VM_WRITE | VM_EXEC))

@@ -24,10 +24,75 @@
 #include <asm/fixmap.h>			/* VSYSCALL_START		*/
 #include <asm/tlbflush.h>
 
+//mmap
+#include <linux/slab.h>
+#include <linux/backing-dev.h>
+#include <linux/mm.h>
+#include <linux/shm.h>
+#include <linux/mman.h>
+#include <linux/pagemap.h>
+#include <linux/swap.h>
+#include <linux/syscalls.h>
+#include <linux/capability.h>
+#include <linux/init.h>
+#include <linux/file.h>
+#include <linux/fs.h>
+#include <linux/personality.h>
+#include <linux/security.h>
+#include <linux/hugetlb.h>
+#include <linux/profile.h>
+#include <linux/export.h>
+#include <linux/mount.h>
+#include <linux/mempolicy.h>
+#include <linux/rmap.h>
+#include <linux/mmu_notifier.h>
+#include <linux/perf_event.h>
+#include <linux/audit.h>
+#include <linux/khugepaged.h>
+
+#include <asm/uaccess.h>
+#include <asm/cacheflush.h>
+#include <asm/tlb.h>
+#include <asm/mmu_context.h>
+
+
 #if defined(CONFIG_X86_64) && defined(CONFIG_PAX_MEMORY_UDEREF)
 #include <asm/stacktrace.h>
 #endif
 //end pfault
+
+//mmap
+#include <linux/slab.h>
+#include <linux/backing-dev.h>
+#include <linux/mm.h>
+#include <linux/shm.h>
+#include <linux/mman.h>
+#include <linux/pagemap.h>
+#include <linux/swap.h>
+#include <linux/syscalls.h>
+#include <linux/capability.h>
+#include <linux/init.h>
+#include <linux/file.h>
+#include <linux/fs.h>
+#include <linux/personality.h>
+#include <linux/security.h>
+#include <linux/hugetlb.h>
+#include <linux/profile.h>
+#include <linux/export.h>
+#include <linux/mount.h>
+#include <linux/mempolicy.h>
+#include <linux/rmap.h>
+#include <linux/mmu_notifier.h>
+#include <linux/perf_event.h>
+#include <linux/audit.h>
+#include <linux/khugepaged.h>
+
+#include <asm/uaccess.h>
+#include <asm/cacheflush.h>
+#include <asm/tlb.h>
+#include <asm/mmu_context.h>
+//end mmap
+
 
 static void krum_impl_test_hook() {
   //printk(KERN_INFO, "krum test hook working\n");
@@ -38,6 +103,7 @@ static struct security_operations krum_ops = {
   .name = "krum",
   .krum_test_hook = krum_impl_test_hook,
   .krum_do_pfault_check_address = krum_impl_do_pfault_check_address,
+  .krum_do_mmap_pgoff = krum_impl_do_mmap_pgoff,
 };
 
 
@@ -71,6 +137,31 @@ static int krum_impl_do_pfault_check_address(struct pt_regs *regs, unsigned long
 	}
 #endif
 	return 0;
+}
+
+static void krum_impl_do_mmap_pgoff(struct mm_struct *mm, vm_flags_t *vm_flags, struct file *file) {
+#ifdef CONFIG_PAX_MPROTECT
+	if (mm->pax_flags & MF_PAX_MPROTECT) {
+		if ((*vm_flags & (VM_WRITE | VM_EXEC)) == (VM_WRITE | VM_EXEC))
+
+#ifdef CONFIG_PAX_EMUPLT
+			*vm_flags &= ~VM_EXEC;
+#else
+			return -EPERM;
+#endif
+
+		if (!(*vm_flags & VM_EXEC))
+			*vm_flags &= ~VM_MAYEXEC;
+		else
+			*vm_flags &= ~VM_MAYWRITE;
+	}
+#endif
+
+#if defined(CONFIG_PAX_PAGEEXEC) && defined(CONFIG_X86_32)
+	if ((mm->pax_flags & MF_PAX_PAGEEXEC) && file)
+		*vm_flags &= ~VM_PAGEEXEC;
+#endif
+
 }
 
 MODULE_LICENSE("GPL");
